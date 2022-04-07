@@ -1,0 +1,44 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:13.1
+    restart: always
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-q", "-d", "postgres", "-U", "postgres" ]
+      timeout: 45s
+      interval: 10s
+      retries: 10
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DATABASE: postgres
+    volumes:
+      - database-data:/var/lib/postgresql/data/
+    ports:
+      - '5432:5432'
+
+  backend:
+    depends_on:
+      - postgres
+    build:
+      context: .
+      target: development
+      dockerfile: ./Dockerfile
+    ports:
+      - "3001:3000"
+    volumes:
+      - ./src/:/usr/src/app/src/
+      - ./test/:/usr/src/app/test
+    env_file:
+      - ./.env.stage.dev
+    environment:
+      STAGE: development
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      DB_DB: postgres
+      DB_HOST: postgres
+      DB_PORT: 5432
+      JWT_SECRET: asdf
+volumes:
+  database-data:
