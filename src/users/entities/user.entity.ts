@@ -8,7 +8,7 @@ export class User {
   id: string;
 
   @Column({ unique: true })
-  @Length(4, 20)
+  @Length(2, 20)
   username: string;
 
   @Column()
